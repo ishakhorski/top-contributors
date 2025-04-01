@@ -35,9 +35,9 @@ To use this action in your repository, create a workflow file (e.g., `.github/wo
 name: Generate Top Contributors Leaderboard
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'
 
 jobs:
   generate-leaderboard:
