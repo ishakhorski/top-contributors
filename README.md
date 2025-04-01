@@ -35,9 +35,9 @@ To use this action in your repository, create a workflow file (e.g., `.github/wo
 name: Generate Top Contributors Leaderboard
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * 1'
+  workflow_dispatch:        # manual trigger
+  schedule:                    
+    - cron: '0 0 * * 1'     # weekly trigger
 
 jobs:
   generate-leaderboard:
@@ -53,26 +53,6 @@ jobs:
           output: CONTRIBUTORS.md
           limit: 10
 ```
-
-## Development
-
-### Build
-
-To build the project, run:
-
-```sh
-npm run build
-```
-
-### Test Locally
-
-You can test the action locally by running:
-
-```sh
-node index.js
-```
-
-Ensure you have the required inputs set as environment variables or modify the script to include them.
 
 ## License
 
