@@ -4,7 +4,7 @@
   "description": "A GitHub Action to list top contributors of a repository",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build index.js -o dist",
+    "build": "ncc build src/index.js -o dist",
     "prepare": "npm run build"
   },
   "keywords": [
