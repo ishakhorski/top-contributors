@@ -16,5 +16,4 @@ runs:
   using: 'node20'
   main: 'dist/index.js'
 branding:
-  icon: 'users'
-  color: 'purple'
+  icon: 'award'
