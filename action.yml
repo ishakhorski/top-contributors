@@ -1,0 +1,20 @@
+name: 'Top Contributors Action'
+description: 'Generates a list of top contributors'
+author: 'Ivan Shakhorski'
+inputs:
+  token:
+    description: 'GitHub Token'
+    required: true
+  output:
+    description: 'File path to write the karma leaderboard to (e.g., CONTRIBUTORS.md)'
+    required: false
+    default: 'CONTRIBUTORS.md'
+  limit:
+    description: 'Limit the number of top contributors (optional)'
+    required: false
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+branding:
+  icon: 'users'
+  color: 'purple'
