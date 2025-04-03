@@ -16,16 +16,21 @@
     - **Pull Requests**: +5 points
 - Outputs a markdown leaderboard to a specified file (default: `CONTRIBUTORS.md`).
 - Configurable limit for the number of top contributors displayed.
+- Supports insertion between markers in existing files.
+- Option to exclude contributors based on usernames, email patterns, or wildcards.
 
 ## Inputs
 
 The action accepts the following inputs:
 
-| Input   | Description                                                                 | Required | Default     |
-|---------|-----------------------------------------------------------------------------|----------|-------------|
-| `token` | GitHub Token to authenticate API requests.                                  | Yes      | N/A         |
-| `output`| File path to write the karma leaderboard to (e.g., `CONTRIBUTORS.md`).      | No       | `CONTRIBUTORS.md` |
-| `limit` | Limit the number of top contributors displayed in the leaderboard.          | No       | Unlimited   |
+| Input          | Description                                                                                         | Required | Default     |
+|----------------|-----------------------------------------------------------------------------------------------------|----------|-------------|
+| `token`        | GitHub Token to authenticate API requests.                                                          | Yes      | N/A         |
+| `output`       | File path to write the karma leaderboard to (e.g., `CONTRIBUTORS.md`).                              | No       | `CONTRIBUTORS.md` |
+| `limit`        | Limit the number of top contributors displayed in the leaderboard.                                  | No       | Unlimited   |
+| `marker_start` | Start marker to identify where to insert content (e.g., `<!-- TOP-CONTRIBUTORS-START -->`).         | No       | `''` (empty) |
+| `marker_end`   | End marker to identify where content insertion should end (e.g., `<!-- TOP-CONTRIBUTORS-END -->`).  | No       | `''` (empty) |
+| `exclude`      | JSON array of patterns or emails to exclude (e.g., `'["bot@example.com", "dependabot", "*-bot"]'`). | No       | `[]` (empty array) |
 
 ## Usage
 
@@ -53,6 +58,49 @@ jobs:
           output: CONTRIBUTORS.md
           limit: 10
 ```
+
+### Using Markers
+
+If you want to update only a specific section in an existing file rather than replacing the entire file, you can use markers:
+
+```yaml
+- name: Generate Top Contributors Leaderboard
+  uses: ishakhorski/top-contributors@v1
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+    output: README.md
+    limit: 10
+    marker_start: "<!-- TOP-CONTRIBUTORS-START -->"
+    marker_end: "<!-- TOP-CONTRIBUTORS-END -->"
+```
+
+`README.md`
+```markdown
+## 🏆 Top Contributors
+
+<!-- TOP-CONTRIBUTORS-START -->
+<!-- TOP-CONTRIBUTORS-END -->
+```
+
+This will only update the content between these markers in your README.md file, preserving the rest of the file's content.
+
+### Excluding Contributors
+
+You can exclude certain users from the karma calculation by providing an array of patterns:
+
+```yaml
+- name: Generate Top Contributors Leaderboard
+  uses: ishakhorski/top-contributors@v1
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+    output: CONTRIBUTORS.md
+    exclude: '["dependabot", "*-bot", "actions-user", "noreply@github.com"]'
+```
+
+The exclude parameter supports:
+- Exact GitHub usernames (e.g., "dependabot")
+- Email addresses (e.g., "bot@example.com")
+- Wildcard patterns (e.g., "*-bot" would match "github-bot", "dependabot-bot", etc.)
 
 ## License
 
