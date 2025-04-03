@@ -32787,12 +32787,12 @@ function generateLeaderboardMarkdown(sortedContributors) {
 
   sortedContributors.forEach(([user, karma], index) => {
     const rank = medals[index] || index + 1;
-    tableRows += `| ${rank} | <a href="https://github.com/${user}"><img src="https://github.com/${user}.png" width="40px"><br />@${user}</a> | ${karma} |\n`;
+    tableRows += `| ${rank} | <a href="https://github.com/${user}">@${user}</a> | ${karma} |\n`;
   });
 
   const tableHeader = '| 🏆 Rank | 👤 User | 🔥 Karma |\n|:-------:|:--------:|:--------:|\n';
 
-  return `\n${tableHeader}${tableRows}_Last updated: ${new Date().toISOString().split('T')[0]}_`;
+  return `\n${tableHeader}${tableRows}\n_Last updated: ${new Date().toISOString().split('T')[0]}_`;
 }
 
 /**
