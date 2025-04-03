@@ -32755,24 +32755,22 @@ const path = __nccwpck_require__(6928);
  */
 function shouldExcludeUser(login, email, excludePatterns = []) {
   if (!excludePatterns.length) return false;
-  
+
+  const escapeRegex = str => str.replace(/[-\/\\^$+?.()|[\]{}]/g, '\\$&');
+
   return excludePatterns.some(pattern => {
-    if (login && pattern === login) return true;
-    
-    if (email && pattern === email) return true;
-    
-    if (pattern.includes('*')) {
-      const regexPattern = pattern
-        .replace(/\./g, '\\.')
-        .replace(/\*/g, '.*');
-      
-      const regex = new RegExp(`^${regexPattern}$`);
-      return (login && regex.test(login)) || (email && regex.test(email));
+    if (!pattern) return false;
+
+    if (!pattern.includes('*')) {
+      return pattern === login || pattern === email;
     }
-    
-    return false;
+
+    const regexPattern = escapeRegex(pattern).replace(/\*/g, '.*');
+    const regex = new RegExp(`^${regexPattern}$`);
+    return [login, email].some(value => value && regex.test(value));
   });
 }
+
 
 /**
  * Generate Markdown for the contributors leaderboard
