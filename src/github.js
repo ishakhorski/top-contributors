@@ -35,10 +35,20 @@ async function getCommentsForIssue(octokit, owner, repo, number) {
     });
 }
 
+async function getOrganizationRepos(octokit, org) {
+    return await octokit.paginate(octokit.rest.repos.listForOrg, {
+        org,
+        per_page: 100,
+        sort: 'updated',
+        direction: 'desc',
+    });
+}
+
 module.exports = {
     getCommits,
     getPullRequests,
     getIssues,
     getReviewsForPR,
     getCommentsForIssue,
+    getOrganizationRepos,
 };

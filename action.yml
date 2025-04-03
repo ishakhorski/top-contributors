@@ -24,6 +24,9 @@ inputs:
     description: 'JSON array of patterns or emails to exclude from the contributions count (e.g., ["bot@example.com", "dependabot", "*-bot"])'
     required: false
     default: '[]'
+  organization:
+    description: 'Organization name to analyze (when specified, contributions will be counted across all repositories)'
+    required: false
 runs:
   using: 'node20'
   main: 'dist/index.js'
