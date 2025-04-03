@@ -27,9 +27,7 @@ async function run() {
       .slice(0, limit || undefined);
 
     const markdown = generateLeaderboardMarkdown(
-      sorted,
-      !!organization,
-      organization
+      sorted
     );
 
     writeLeaderboardToFile(

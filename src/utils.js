@@ -36,14 +36,10 @@ function shouldExcludeUser(login, email, excludePatterns = []) {
  * @param {string} orgName - Name of the organization (if applicable)
  * @returns {string} - Markdown content
  */
-function generateLeaderboardMarkdown(sortedContributors, isOrg, orgName) {
+function generateLeaderboardMarkdown(sortedContributors) {
   if (!sortedContributors.length) {
-    return '## 🏆 Top Contributors\n\nNo contributors found.';
+    return '';
   }
-
-  const title = isOrg
-    ? `## 🏆 Top Contributors for ${orgName} Organization`
-    : '## 🏆 Top Contributors';
   
   let tableRows = '';
   
@@ -53,7 +49,7 @@ function generateLeaderboardMarkdown(sortedContributors, isOrg, orgName) {
 
   const tableHeader = '| Rank | User | Karma |\n| :---: | :---: | :---: |\n';
   
-  return `${title}\n\n${tableHeader}${tableRows}\n_Last updated: ${new Date().toISOString().split('T')[0]}_`;
+  return `\n${tableHeader}${tableRows}\n_Last updated: ${new Date().toISOString().split('T')[0]}_`;
 }
 
 /**
