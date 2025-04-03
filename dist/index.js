@@ -32592,17 +32592,90 @@ async function getCommentsForIssue(octokit, owner, repo, number) {
     });
 }
 
+async function getOrganizationRepos(octokit, org) {
+    return await octokit.paginate(octokit.rest.repos.listForOrg, {
+        org,
+        per_page: 100,
+        sort: 'updated',
+        direction: 'desc',
+    });
+}
+
 module.exports = {
     getCommits,
     getPullRequests,
     getIssues,
     getReviewsForPR,
     getCommentsForIssue,
+    getOrganizationRepos,
 };
+
 
 /***/ }),
 
-/***/ 4713:
+/***/ 2680:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const { KARMA } = __nccwpck_require__(1053);
+const { 
+  getCommits, 
+  getPullRequests, 
+  getIssues, 
+  getReviewsForPR, 
+  getCommentsForIssue 
+} = __nccwpck_require__(6474);
+const { shouldExcludeUser } = __nccwpck_require__(5804);
+
+async function calculateRepoKarma(octokit, owner, repo, excludePatterns = []) {
+  const karmaMap = {};
+
+  const addKarma = (login, points, email) => {
+    if (login && !shouldExcludeUser(login, email, excludePatterns)) {
+      karmaMap[login] = (karmaMap[login] || 0) + points;
+    }
+  };
+
+  const commits = await getCommits(octokit, owner, repo);
+  commits.forEach(c => 
+    addKarma(c.author?.login, KARMA.COMMIT, c.commit?.author?.email)
+  );
+
+  const prs = await getPullRequests(octokit, owner, repo);
+  prs.forEach(pr => 
+    addKarma(pr.user?.login, KARMA.PULL_REQUEST)
+  );
+
+  const issues = await getIssues(octokit, owner, repo);
+  await Promise.all(
+    issues.map(async issue => {
+      if (!issue.pull_request) {
+        addKarma(issue.user?.login, KARMA.ISSUE);
+      }
+      const comments = await getCommentsForIssue(octokit, owner, repo, issue.number);
+      comments.forEach(comment => 
+        addKarma(comment.user?.login, KARMA.COMMENT)
+      );
+    })
+  );
+
+  await Promise.all(
+    prs.map(async pr => {
+      const reviews = await getReviewsForPR(octokit, owner, repo, pr.number);
+      reviews.forEach(review => 
+        addKarma(review.user?.login, KARMA.REVIEW)
+      );
+    })
+  );
+
+  return karmaMap;
+}
+
+module.exports = { calculateRepoKarma };
+
+
+/***/ }),
+
+/***/ 1053:
 /***/ ((module) => {
 
 const KARMA = Object.freeze({
@@ -32615,6 +32688,162 @@ const KARMA = Object.freeze({
 
 module.exports = { KARMA };
 
+
+/***/ }),
+
+/***/ 6249:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const { getOrganizationRepos } = __nccwpck_require__(6474);
+const { calculateRepoKarma } = __nccwpck_require__(2680);
+
+async function runOrgMode(octokit, organization, excludePatterns = []) {
+    const repos = await getOrganizationRepos(octokit, organization);
+    const karmaMap = {};
+
+    for (const repo of repos) {
+        if (repo.archived || repo.size === 0) continue;
+
+        try {
+            const repoKarma = await calculateRepoKarma(
+                octokit,
+                organization,
+                repo.name,
+                excludePatterns
+            );
+            for (const [login, points] of Object.entries(repoKarma)) {
+                karmaMap[login] = (karmaMap[login] || 0) + points;
+            }
+        } catch (err) {
+            console.log(`⚠️ Failed to process repo ${repo.name}: ${err.message}`);
+        }
+    }
+
+    return karmaMap;
+}
+
+module.exports = { runOrgMode };
+
+
+/***/ }),
+
+/***/ 9891:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const { calculateRepoKarma } = __nccwpck_require__(2680);
+
+async function runRepoMode(octokit, owner, repo, excludePatterns = []) {
+    return await calculateRepoKarma(octokit, owner, repo, excludePatterns);
+}
+
+module.exports = { runRepoMode };
+
+/***/ }),
+
+/***/ 5804:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const fs = __nccwpck_require__(9896);
+const path = __nccwpck_require__(6928);
+
+/**
+ * Check if a user should be excluded based on the exclude patterns
+ * @param {string} login - GitHub username
+ * @param {string} email - User email address
+ * @param {string[]} excludePatterns - Array of patterns to exclude
+ * @returns {boolean} - True if the user should be excluded
+ */
+function shouldExcludeUser(login, email, excludePatterns = []) {
+  if (!excludePatterns.length) return false;
+  
+  return excludePatterns.some(pattern => {
+    if (login && pattern === login) return true;
+    
+    if (email && pattern === email) return true;
+    
+    if (pattern.includes('*')) {
+      const regexPattern = pattern
+        .replace(/\./g, '\\.')
+        .replace(/\*/g, '.*');
+      
+      const regex = new RegExp(`^${regexPattern}$`);
+      return (login && regex.test(login)) || (email && regex.test(email));
+    }
+    
+    return false;
+  });
+}
+
+/**
+ * Generate Markdown for the contributors leaderboard
+ * @param {Array<[string, number]>} sortedContributors - Array of [username, points]
+ * @param {boolean} isOrg - Whether this is for an organization or repo
+ * @param {string} orgName - Name of the organization (if applicable)
+ * @returns {string} - Markdown content
+ */
+function generateLeaderboardMarkdown(sortedContributors, isOrg, orgName) {
+  if (!sortedContributors.length) {
+    return '## 🏆 Top Contributors\n\nNo contributors found.';
+  }
+
+  const title = isOrg
+    ? `## 🏆 Top Contributors for ${orgName} Organization`
+    : '## 🏆 Top Contributors';
+  
+  let tableRows = '';
+  
+  sortedContributors.forEach(([user, karma], index) => {
+    tableRows += `| ${index + 1} | <a href="https://github.com/${user}"><img src="https://github.com/${user}.png" width="50px" style="border-radius:50%"><br /><sub>@${user}</sub></a> | ${karma} |\n`;
+  });
+
+  const tableHeader = '| Rank | User | Karma |\n| :---: | :---: | :---: |\n';
+  
+  return `${title}\n\n${tableHeader}${tableRows}\n_Last updated: ${new Date().toISOString().split('T')[0]}_`;
+}
+
+/**
+ * Write the leaderboard to a file
+ * @param {string} filePath - Path where to write the file
+ * @param {string} content - Content to write
+ * @param {string} markerStart - Start marker
+ * @param {string} markerEnd - End marker
+ */
+function writeLeaderboardToFile(filePath, content, markerStart = '', markerEnd = '') {
+  try {
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    let fileContent = '';
+    let finalContent = content;
+
+    if (markerStart && markerEnd && fs.existsSync(filePath)) {
+      fileContent = fs.readFileSync(filePath, 'utf8');
+      
+      const startIndex = fileContent.indexOf(markerStart);
+      const endIndex = fileContent.indexOf(markerEnd);
+      
+      if (startIndex !== -1 && endIndex !== -1 && startIndex < endIndex) {
+        finalContent = fileContent.substring(0, startIndex + markerStart.length) +
+                      '\n' + content + '\n' +
+                      fileContent.substring(endIndex);
+      }
+    }
+    
+    fs.writeFileSync(filePath, finalContent);
+    console.log(`✅ Leaderboard written to ${filePath}`);
+  } catch (err) {
+    console.error(`❌ Error writing to ${filePath}: ${err.message}`);
+    throw err;
+  }
+}
+
+module.exports = {
+  shouldExcludeUser,
+  generateLeaderboardMarkdown,
+  writeLeaderboardToFile
+};
 
 /***/ }),
 
@@ -34556,103 +34785,46 @@ module.exports = /*#__PURE__*/JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45
 var __webpack_exports__ = {};
 const core = __nccwpck_require__(7484);
 const github = __nccwpck_require__(3228);
-const fs = __nccwpck_require__(9896);
-
-const {
-  getCommits,
-  getPullRequests,
-  getIssues,
-  getReviewsForPR,
-  getCommentsForIssue,
-} = __nccwpck_require__(6474);
-
-const { KARMA } = __nccwpck_require__(4713);
-
-async function fetchKarmaData(octokit, owner, repo) {
-  const karmaMap = {};
-
-  const addKarma = (login, points) => {
-    if (login) {
-      karmaMap[login] = (karmaMap[login] || 0) + points;
-    }
-  };
-
-  const commits = await getCommits(octokit, owner, repo);
-  commits.forEach((c) => addKarma(c.author?.login, KARMA.COMMIT));
-
-  const prs = await getPullRequests(octokit, owner, repo);
-  prs.forEach((pr) => addKarma(pr.user?.login, KARMA.PULL_REQUEST));
-
-  const issues = await getIssues(octokit, owner, repo);
-  await Promise.all(
-    issues.map(async (issue) => {
-      if (!issue.pull_request) {
-        addKarma(issue.user?.login, KARMA.ISSUE);
-      }
-
-      const comments = await getCommentsForIssue(
-        octokit,
-        owner,
-        repo,
-        issue.number
-      );
-      comments.forEach((comment) =>
-        addKarma(comment.user?.login, KARMA.COMMENT)
-      );
-    })
-  );
-
-  await Promise.all(
-    prs.map(async (pr) => {
-      const reviews = await getReviewsForPR(octokit, owner, repo, pr.number);
-      reviews.forEach((review) =>
-        addKarma(review.user?.login, KARMA.REVIEW)
-      );
-    })
-  );
-
-  return karmaMap;
-}
-
-function generateLeaderboardMarkdown(sorted) {
-  const list = sorted.map(([login, points], i) => {
-    const avatar = `https://github.com/${login}.png?size=24`;
-    const profile = `https://github.com/${login}`;
-    return `${i + 1}. [![avatar](${avatar})](${profile}) **@${login}** - ${points} karma`;
-  }).join('\n');
-
-  return `## 🏆 Top Contributors\n\n${list}`;
-}
-
-function writeLeaderboardToFile(filePath, content) {
-  const fullPath = filePath.startsWith('./') ? filePath : `./${filePath}`;
-  fs.writeFileSync(fullPath, content, 'utf8');
-  console.log(`✅ Karma leaderboard written to ${fullPath}`);
-}
+const { runRepoMode } = __nccwpck_require__(9891);
+const { runOrgMode } = __nccwpck_require__(6249);
+const { generateLeaderboardMarkdown, writeLeaderboardToFile } = __nccwpck_require__(5804);
 
 async function run() {
   try {
     const token = core.getInput('token');
     const outputPath = core.getInput('output') || 'CONTRIBUTORS.md';
-    const limit = core.getInput('limit');
-    const topLimit = limit ? parseInt(limit, 10) : null;
+    const limit = parseInt(core.getInput('limit') || '0', 10);
+    const organization = core.getInput('organization');
+    const excludeInput = core.getInput('exclude') || '[]';
+    const excludePatterns = JSON.parse(excludeInput);
+    const octokit = github.getOctokit(token);
 
-    if (!token) {
-      core.setFailed('GitHub token is required.');
-      return;
+    let karmaMap;
+    if (organization) {
+      karmaMap = await runOrgMode(octokit, organization, excludePatterns);
+    } else {
+      const { owner, repo } = github.context.repo;
+      karmaMap = await runRepoMode(octokit, owner, repo, excludePatterns);
     }
 
-    const octokit = github.getOctokit(token);
-    const { owner, repo } = github.context.repo;
-
-    const karmaMap = await fetchKarmaData(octokit, owner, repo);
     const sorted = Object.entries(karmaMap)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, topLimit || undefined);
-    const markdown = generateLeaderboardMarkdown(sorted);
-    writeLeaderboardToFile(outputPath, markdown);
-  } catch (error) {
-    core.setFailed(error.message);
+      .slice(0, limit || undefined);
+
+    const markdown = generateLeaderboardMarkdown(
+      sorted,
+      !!organization,
+      organization
+    );
+
+    writeLeaderboardToFile(
+      outputPath,
+      markdown,
+      core.getInput('marker_start'),
+      core.getInput('marker_end')
+    );
+  } catch (err) {
+    core.setFailed(err.message);
   }
 }
 
