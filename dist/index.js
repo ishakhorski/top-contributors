@@ -32775,24 +32775,24 @@ function shouldExcludeUser(login, email, excludePatterns = []) {
 /**
  * Generate Markdown for the contributors leaderboard
  * @param {Array<[string, number]>} sortedContributors - Array of [username, points]
- * @param {boolean} isOrg - Whether this is for an organization or repo
- * @param {string} orgName - Name of the organization (if applicable)
  * @returns {string} - Markdown content
  */
 function generateLeaderboardMarkdown(sortedContributors) {
   if (!sortedContributors.length) {
     return '';
   }
-  
+
+  const medals = ['🥇', '🥈', '🥉'];
   let tableRows = '';
-  
+
   sortedContributors.forEach(([user, karma], index) => {
-    tableRows += `| ${index + 1} | <a href="https://github.com/${user}"><img src="https://github.com/${user}.png" width="50px" style="border-radius:50%"><br /><sub>@${user}</sub></a> | ${karma} |\n`;
+    const rank = medals[index] || index + 1;
+    tableRows += `| ${rank} | <a href="https://github.com/${user}"><img src="https://github.com/${user}.png" width="40px"><br />@${user}</a> | ${karma} |\n`;
   });
 
-  const tableHeader = '| Rank | User | Karma |\n| :---: | :---: | :---: |\n';
-  
-  return `\n${tableHeader}${tableRows}\n_Last updated: ${new Date().toISOString().split('T')[0]}_`;
+  const tableHeader = '| 🏆 Rank | 👤 User | 🔥 Karma |\n|:-------:|:--------:|:--------:|\n';
+
+  return `\n${tableHeader}${tableRows}_Last updated: ${new Date().toISOString().split('T')[0]}_`;
 }
 
 /**
