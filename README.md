@@ -59,7 +59,15 @@ jobs:
       token: ${{ secrets.GITHUB_TOKEN }}
       output: CONTRIBUTORS.md
       limit: 10
+
+    # Create Pull Request with your changes
 ```
+
+1. Make sure to commit all changes made by action
+2. Push your commits to your branch
+3. Create a Pull Request with your changes for review
+
+> **Note:** The Pull Request will only include changes that have been committed and pushed to your branch.
 
 ### Using Markers
 
