@@ -54,7 +54,7 @@ jobs:
     uses: actions/checkout@v4
 
     - name: Generate Top Contributors Leaderboard
-    uses: ishakhorski/top-contributors@v1
+    uses: ishakhorski/top-contributors@v2
     with:
       token: ${{ secrets.GITHUB_TOKEN }}
       output: CONTRIBUTORS.md
@@ -67,7 +67,7 @@ If you want to update only a specific section in an existing file rather than re
 
 ```yaml
 - name: Generate Top Contributors Leaderboard
-  uses: ishakhorski/top-contributors@v1
+  uses: ishakhorski/top-contributors@v2
   with:
   token: ${{ secrets.GITHUB_TOKEN }}
   output: README.md
@@ -92,7 +92,7 @@ You can exclude certain users from the karma calculation by providing an array o
 
 ```yaml
 - name: Generate Top Contributors Leaderboard
-  uses: ishakhorski/top-contributors@v1
+  uses: ishakhorski/top-contributors@v2
   with:
   token: ${{ secrets.GITHUB_TOKEN }}
   output: CONTRIBUTORS.md
@@ -109,7 +109,7 @@ The exclude parameter supports:
 To analyze contributions across all repositories in an organization:
 ```yaml
 - name: Generate Organization Top Contributors
-  uses: ishakhorski/top-contributors@v1
+  uses: ishakhorski/top-contributors@v2
   with:
   token: ${{ secrets.GITHUB_TOKEN }}
   output: ORG_CONTRIBUTORS.md
