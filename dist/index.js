@@ -24147,7 +24147,7 @@ async function run() {
     }
     const octokit = (0, import_github.getOctokit)(token);
     const karmaConfig = (0, import_core.getInput)("config");
-    const karmaConfigParsed = karmaConfig ? JSON.parse(karmaConfig) : { pull_request: 5, issue: 4, review: 3, commit: 2, comment: 1 };
+    const karmaConfigParsed = karmaConfig ? JSON.parse(karmaConfig) : { pull_request: 10, issue: 5, review: 3, commit: 2, comment: 1 };
     (0, import_core.info)(karmaConfig ? `Karma config: ${karmaConfig}` : "No karma config provided, using default values");
     const exclude = (0, import_core.getInput)("exclude");
     const excludeParsed = exclude ? JSON.parse(exclude) : [];
