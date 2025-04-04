@@ -4,8 +4,7 @@
   "description": "A GitHub Action to list top contributors of a repository",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build src/index.js -o dist",
-    "prepare": "npm run build"
+    "build": "tsc"
   },
   "keywords": [
     "github",
@@ -21,6 +20,7 @@
     "@actions/github": "^5.1.1"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.0"
+    "@vercel/ncc": "^0.38.0",
+    "typescript": "^5.8.2"
   }
 }
