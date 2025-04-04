@@ -141,7 +141,7 @@ describe('run function', () => {
         await run()
         
         expect(KarmaService).toHaveBeenCalledWith(
-            { pull_request: 5, issue: 4, review: 3, commit: 2, comment: 1 }, 
+            { pull_request: 10, issue: 5, review: 3, commit: 2, comment: 1 }, 
             []
         )
         expect(core.info).toHaveBeenCalledWith('No karma config provided, using default values')

@@ -32,6 +32,10 @@ inputs:
     description: 'JSON array of patterns or emails to exclude from the contributions count (e.g., ["bot@example.com", "dependabot", "*-bot"])'
     required: false
     default: '[]'
+  config:
+    description: 'JSON object to configure the contribution types and their weights (e.g., {"pull_request": 10, "issue": 5, "review": 3, "commit": 2, "comment": 1}). If some types are not specified, they will be ignored. The default weights are: pull_request: 10, issue: 5, review: 3, commit: 2, comment: 1.'
+    required: false
+    default: '{"pull_request": 10, "issue": 5, "review": 3, "commit": 2, "comment": 1}'
 
 branding:
   icon: 'award'
