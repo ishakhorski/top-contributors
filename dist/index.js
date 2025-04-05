@@ -24098,7 +24098,9 @@ var KarmaService = class {
           { owner, repo, state: "all" },
           octokit
         );
-        issues.forEach((issue) => {
+
+        const pureIssues = issues.filter((issue) => !issue.pull_request);
+        pureIssues.forEach((issue) => {
           if (issue.user && issue.user.login && !this.isExcluded(issue.user.login, issue.user.email || "")) {
             const username = issue.user.login;
             this.#state.set(
@@ -24167,7 +24169,7 @@ var writeMarkdown = (output, markdown, markers) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    if (!(markers == null ? void 0 : markers.marker_start) || !(markers == null ? void 0 : markers.marker_end)) {
+ if (!(markers == null ? void 0 : markers.marker_start) || !(markers == null ? void 0 : markers.marker_end)) {
       fs.writeFileSync(output, markdown);
       return;
     }

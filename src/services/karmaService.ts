@@ -115,8 +115,9 @@ export class KarmaService {
           { owner, repo, state: "all" },
           octokit,
         );
+        const pureIssues = issues.filter((issue) => !issue.pull_request);
 
-        issues.forEach((issue) => {
+        pureIssues.forEach((issue) => {
           if (
             issue.user &&
             issue.user.login &&
