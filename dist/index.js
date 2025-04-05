@@ -23914,7 +23914,9 @@ async function getRepositoryPullRequests({
     );
     return pullRequests;
   } catch (error) {
-    throw new Error(`Failed to get pull requests for ${owner}/${repo}: ${error.message}`);
+    throw new Error(
+      `Failed to get pull requests for ${owner}/${repo}: ${error.message}`
+    );
   }
 }
 async function getRepositoryIssues({
@@ -23934,7 +23936,9 @@ async function getRepositoryIssues({
     );
     return issues;
   } catch (error) {
-    throw new Error(`Failed to get issues for ${owner}/${repo}: ${error.message}`);
+    throw new Error(
+      `Failed to get issues for ${owner}/${repo}: ${error.message}`
+    );
   }
 }
 async function getPullRequestReviews({
@@ -23954,7 +23958,9 @@ async function getPullRequestReviews({
     );
     return reviews;
   } catch (error) {
-    throw new Error(`Failed to get reviews for ${owner}/${repo}: ${error.message}`);
+    throw new Error(
+      `Failed to get reviews for ${owner}/${repo}: ${error.message}`
+    );
   }
 }
 async function getRepositoryCommits({
@@ -23972,7 +23978,9 @@ async function getRepositoryCommits({
     );
     return commits;
   } catch (error) {
-    throw new Error(`Failed to get commits for ${owner}/${repo}: ${error.message}`);
+    throw new Error(
+      `Failed to get commits for ${owner}/${repo}: ${error.message}`
+    );
   }
 }
 async function getRepositoryComments({
@@ -23990,7 +23998,9 @@ async function getRepositoryComments({
     );
     return comments;
   } catch (error) {
-    throw new Error(`Failed to get comments for ${owner}/${repo}: ${error.message}`);
+    throw new Error(
+      `Failed to get comments for ${owner}/${repo}: ${error.message}`
+    );
   }
 }
 async function getOrganizationRepositories({
@@ -24008,7 +24018,9 @@ async function getOrganizationRepositories({
     );
     return repos;
   } catch (error) {
-    throw new Error(`Failed to get repositories for organization ${org}: ${error.message}`);
+    throw new Error(
+      `Failed to get repositories for organization ${org}: ${error.message}`
+    );
   }
 }
 
@@ -24029,31 +24041,52 @@ var KarmaService = class {
     return Array.from(this.#state.entries()).map(([username, points]) => ({ username, points })).sort((a, b) => b.points - a.points);
   }
   isExcluded(username, email) {
-    return this.#exclude.some((pattern) => pattern.test(username) || pattern.test(email));
+    return this.#exclude.some(
+      (pattern) => pattern.test(username) || pattern.test(email)
+    );
   }
   async processRepository({ owner, repo }, octokit) {
     try {
       const config = this.#config;
       if (config.pull_request) {
         const points = config.pull_request;
-        const pullRequests = await getRepositoryPullRequests({ owner, repo, state: "all" }, octokit);
-        const mergedPullRequests = pullRequests.filter((pullRequest) => !!pullRequest.merged_at);
+        const pullRequests = await getRepositoryPullRequests(
+          { owner, repo, state: "closed" },
+          octokit
+        );
+        const mergedPullRequests = pullRequests.filter(
+          (pullRequest) => !!pullRequest.merged_at
+        );
         mergedPullRequests.forEach((pullRequest) => {
-          if (pullRequest.user && pullRequest.user.login && !this.isExcluded(pullRequest.user.login, pullRequest.user.email || "")) {
+          if (pullRequest.user && pullRequest.user.login && !this.isExcluded(
+            pullRequest.user.login,
+            pullRequest.user.email || ""
+          )) {
             const username = pullRequest.user.login;
-            this.#state.set(username, (this.#state.get(username) || 0) + points);
+            this.#state.set(
+              username,
+              (this.#state.get(username) || 0) + points
+            );
           }
         });
         if (config.review) {
           const reviewPoints = config.review;
           const pullRequestReviews = await Promise.all(
-            mergedPullRequests.map((pullRequest) => getPullRequestReviews({ owner, repo, pull_number: pullRequest.number }, octokit))
+            mergedPullRequests.map(
+              (pullRequest) => getPullRequestReviews(
+                { owner, repo, pull_number: pullRequest.number },
+                octokit
+              )
+            )
           );
           pullRequestReviews.forEach((reviews) => {
             reviews.forEach((review) => {
               if (review.user && review.user.login && !this.isExcluded(review.user.login, review.user.email || "")) {
                 const username = review.user.login;
-                this.#state.set(username, (this.#state.get(username) || 0) + reviewPoints);
+                this.#state.set(
+                  username,
+                  (this.#state.get(username) || 0) + reviewPoints
+                );
               }
             });
           });
@@ -24061,11 +24094,17 @@ var KarmaService = class {
       }
       if (config.issue) {
         const points = config.issue;
-        const issues = await getRepositoryIssues({ owner, repo, state: "all" }, octokit);
+        const issues = await getRepositoryIssues(
+          { owner, repo, state: "all" },
+          octokit
+        );
         issues.forEach((issue) => {
           if (issue.user && issue.user.login && !this.isExcluded(issue.user.login, issue.user.email || "")) {
             const username = issue.user.login;
-            this.#state.set(username, (this.#state.get(username) || 0) + points);
+            this.#state.set(
+              username,
+              (this.#state.get(username) || 0) + points
+            );
           }
         });
       }
@@ -24075,7 +24114,10 @@ var KarmaService = class {
         commits.forEach((commit) => {
           if (commit.author && commit.author.login && !this.isExcluded(commit.author.login, commit.author.email || "")) {
             const username = commit.author.login;
-            this.#state.set(username, (this.#state.get(username) || 0) + points);
+            this.#state.set(
+              username,
+              (this.#state.get(username) || 0) + points
+            );
           }
         });
       }
@@ -24085,12 +24127,17 @@ var KarmaService = class {
         comments.forEach((comment) => {
           if (comment.user && comment.user.login && !this.isExcluded(comment.user.login, comment.user.email || "")) {
             const username = comment.user.login;
-            this.#state.set(username, (this.#state.get(username) || 0) + points);
+            this.#state.set(
+              username,
+              (this.#state.get(username) || 0) + points
+            );
           }
         });
       }
     } catch (error) {
-      throw new Error(`Failed to process repository ${owner}/${repo}: ${error.message}`);
+      throw new Error(
+        `Failed to process repository ${owner}/${repo}: ${error.message}`
+      );
     }
   }
 };
@@ -24102,7 +24149,9 @@ var generateMarkdown = (leaderboard) => {
   }
   const medals = ["\u{1F947}", "\u{1F948}", "\u{1F949}"];
   const header = "| \u{1F3C6} Rank | \u{1F464} User | \u{1F525} Karma |\n|:-------:|:--------:|:--------:|";
-  const rows = leaderboard.map(({ username, points }, index) => `| ${medals[index] || index + 1} | <a href="https://github.com/${username}">@${username}</a> | ${points} |`);
+  const rows = leaderboard.map(
+    ({ username, points }, index) => `| ${medals[index] || index + 1} | <a href="https://github.com/${username}">@${username}</a> | ${points} |`
+  );
   const footer = `_Last updated: ${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}_`;
   return `${header}
 ${rows.join("\n")}
@@ -24118,20 +24167,27 @@ var writeMarkdown = (output, markdown, markers) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    let fileContent = "";
-    let finalContent = markdown;
-    if ((markers == null ? void 0 : markers.marker_start) && (markers == null ? void 0 : markers.marker_end) && fs.existsSync(output)) {
-      fileContent = fs.readFileSync(output, "utf8");
-      const startIndex = fileContent.indexOf(markers.marker_start);
-      const endIndex = fileContent.indexOf(markers.marker_end);
-      if (startIndex === -1 || endIndex === -1) {
-        throw new Error(`Markers not found in the file: ${output}. Please check the markers.`);
-      }
-      if (startIndex > endIndex) {
-        throw new Error(`Start marker appears after end marker in the file: ${output}. Please check the markers.`);
-      }
-      finalContent = fileContent.substring(0, startIndex + markers.marker_start.length) + markdown + fileContent.substring(endIndex);
+    if (!(markers == null ? void 0 : markers.marker_start) || !(markers == null ? void 0 : markers.marker_end)) {
+      fs.writeFileSync(output, markdown);
+      return;
     }
+    if (!fs.existsSync(output)) {
+      throw new Error(`File does not exist: ${output}`);
+    }
+    const fileContent = fs.readFileSync(output, "utf8");
+    const startIndex = fileContent.indexOf(markers.marker_start);
+    const endIndex = fileContent.indexOf(markers.marker_end);
+    if (startIndex === -1 || endIndex === -1) {
+      throw new Error(
+        `Markers not found in the file: ${output}. Please check the markers.`
+      );
+    }
+    if (startIndex > endIndex) {
+      throw new Error(
+        `Start marker appears after end marker in the file: ${output}. Please check the marker order.`
+      );
+    }
+    const finalContent = fileContent.substring(0, startIndex + markers.marker_start.length) + "\n" + markdown + "\n" + fileContent.substring(endIndex);
     fs.writeFileSync(output, finalContent);
   } catch (err) {
     throw err;
@@ -24148,16 +24204,35 @@ async function run() {
     const octokit = (0, import_github.getOctokit)(token);
     const karmaConfig = (0, import_core.getInput)("config");
     const karmaConfigParsed = karmaConfig ? JSON.parse(karmaConfig) : { pull_request: 10, issue: 5, review: 3, commit: 2, comment: 1 };
-    (0, import_core.info)(karmaConfig ? `Karma config: ${karmaConfig}` : "No karma config provided, using default values");
+    (0, import_core.info)(
+      karmaConfig ? `Karma config: ${karmaConfig}` : "No karma config provided, using default values"
+    );
     const exclude = (0, import_core.getInput)("exclude");
     const excludeParsed = exclude ? JSON.parse(exclude) : [];
-    const karmaService = new KarmaService(karmaConfigParsed, excludeParsed);
+    const karmaService = new KarmaService(
+      karmaConfigParsed,
+      excludeParsed
+    );
     const organization = (0, import_core.getInput)("organization") || null;
     if (organization) {
       (0, import_core.info)(`Run in organization mode: ${organization}`);
-      const orgRepos = await getOrganizationRepositories({ org: organization, type: "public" }, octokit).then((repositories) => repositories.map((repo) => ({ repo: repo.name, owner: organization })));
-      (0, import_core.info)(`Found ${orgRepos.length} repositories in organization ${organization}`);
-      await Promise.all(orgRepos.map(async ({ repo, owner }) => karmaService.processRepository({ owner, repo }, octokit)));
+      const orgRepos = await getOrganizationRepositories(
+        { org: organization, type: "public" },
+        octokit
+      ).then(
+        (repositories) => repositories.map((repo) => ({
+          repo: repo.name,
+          owner: organization
+        }))
+      );
+      (0, import_core.info)(
+        `Found ${orgRepos.length} repositories in organization ${organization}`
+      );
+      await Promise.all(
+        orgRepos.map(
+          async ({ repo, owner }) => karmaService.processRepository({ owner, repo }, octokit)
+        )
+      );
     } else {
       const { owner, repo } = import_github.context.repo;
       (0, import_core.info)(`Run in repository mode: ${owner}/${repo}`);
@@ -24166,7 +24241,9 @@ async function run() {
     let leaderboard = karmaService.getLeaderboard();
     const limit = (0, import_core.getInput)("limit");
     const parsedLimit = limit ? parseInt(limit, 10) : null;
-    (0, import_core.info)(parsedLimit ? `Leaderboard with limit: ${parsedLimit} entries` : "No limit provided, showing all leaderboard entries");
+    (0, import_core.info)(
+      parsedLimit ? `Leaderboard with limit: ${parsedLimit} entries` : "No limit provided, showing all leaderboard entries"
+    );
     if (parsedLimit) {
       leaderboard = leaderboard.slice(0, parsedLimit);
     }
@@ -24176,10 +24253,14 @@ async function run() {
     const marker_start = (0, import_core.getInput)("marker-start") || null;
     const marker_end = (0, import_core.getInput)("marker-end") || null;
     if (marker_start && marker_end) {
-      (0, import_core.info)(`Using custom markers: ${marker_start} and ${marker_end}. This will overwrite the file content between these markers.`);
+      (0, import_core.info)(
+        `Using custom markers: ${marker_start} and ${marker_end}. This will overwrite the file content between these markers.`
+      );
       writeMarkdown(output, markdown, { marker_start, marker_end });
     } else {
-      (0, import_core.info)("No markers provided, writing markdown to file. This will overwrite the file content.");
+      (0, import_core.info)(
+        "No markers provided, writing markdown to file. This will overwrite the file content."
+      );
       writeMarkdown(output, markdown);
     }
   } catch (error) {
