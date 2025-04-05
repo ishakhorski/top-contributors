@@ -24098,6 +24098,7 @@ var KarmaService = class {
           { owner, repo, state: "all" },
           octokit
         );
+
         const pureIssues = issues.filter((issue) => !issue.pull_request);
         pureIssues.forEach((issue) => {
           if (issue.user && issue.user.login && !this.isExcluded(issue.user.login, issue.user.email || "")) {
@@ -24168,24 +24169,27 @@ var writeMarkdown = (output, markdown, markers) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    let fileContent = "";
-    let finalContent = markdown;
-    if ((markers == null ? void 0 : markers.marker_start) && (markers == null ? void 0 : markers.marker_end) && fs.existsSync(output)) {
-      fileContent = fs.readFileSync(output, "utf8");
-      const startIndex = fileContent.indexOf(markers.marker_start);
-      const endIndex = fileContent.indexOf(markers.marker_end);
-      if (startIndex === -1 || endIndex === -1) {
-        throw new Error(
-          `Markers not found in the file: ${output}. Please check the markers.`
-        );
-      }
-      if (startIndex > endIndex) {
-        throw new Error(
-          `Start marker appears after end marker in the file: ${output}. Please check the markers.`
-        );
-      }
-      finalContent = fileContent.substring(0, startIndex + markers.marker_start.length) + markdown + fileContent.substring(endIndex);
+ if (!(markers == null ? void 0 : markers.marker_start) || !(markers == null ? void 0 : markers.marker_end)) {
+      fs.writeFileSync(output, markdown);
+      return;
     }
+    if (!fs.existsSync(output)) {
+      throw new Error(`File does not exist: ${output}`);
+    }
+    const fileContent = fs.readFileSync(output, "utf8");
+    const startIndex = fileContent.indexOf(markers.marker_start);
+    const endIndex = fileContent.indexOf(markers.marker_end);
+    if (startIndex === -1 || endIndex === -1) {
+      throw new Error(
+        `Markers not found in the file: ${output}. Please check the markers.`
+      );
+    }
+    if (startIndex > endIndex) {
+      throw new Error(
+        `Start marker appears after end marker in the file: ${output}. Please check the marker order.`
+      );
+    }
+    const finalContent = fileContent.substring(0, startIndex + markers.marker_start.length) + "\n" + markdown + "\n" + fileContent.substring(endIndex);
     fs.writeFileSync(output, finalContent);
   } catch (err) {
     throw err;
