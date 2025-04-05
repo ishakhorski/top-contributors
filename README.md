@@ -32,7 +32,7 @@ jobs:
             - uses: actions/checkout@v4
 
             - name: Generate Top Contributors
-                uses: your-username/top-contributors-action@v2
+                uses: ishakhorski/top-contributors-action@v2
                 with:
                     token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -62,7 +62,7 @@ jobs:
             - uses: actions/checkout@v4
 
             - name: Generate Top Contributors
-                uses: your-username/top-contributors-action@v2
+                uses: ishakhorski/top-contributors-action@v2
                 with:
                     token: ${{ secrets.GITHUB_TOKEN }}
                     organization: 'your-organization'  # Process all repos in the org
@@ -100,7 +100,7 @@ You can customize the point values for different types of contributions by provi
 
 ```yml
 - name: Generate Top Contributors
-    uses: your-username/top-contributors-action@v2
+    uses: ishakhorski/top-contributors-action@v2
     with:
         token: ${{ secrets.GITHUB_TOKEN }}
         config: '{"pull_request": 10, "issue": 5, "review": 3, "commit": 2, "comment": 1}'
