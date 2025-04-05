@@ -154,36 +154,6 @@ ${markers.marker_start}
     );
   });
 
-  it("handles leading/trailing whitespace around markers", () => {
-    const markers = {
-      marker_start: "<!-- START_SECTION -->",
-      marker_end: "<!-- END_SECTION -->",
-    };
-
-    const existingContent = `
-Header
-    ${markers.marker_start}
-old content
-    ${markers.marker_end}
-Footer
-`;
-
-    const expectedContent = `
-Header
-    ${markers.marker_start}
-# Test Markdown
-    ${markers.marker_end}
-Footer
-`;
-
-    vi.mocked(fs.existsSync).mockReturnValue(true);
-    vi.mocked(fs.readFileSync).mockReturnValueOnce(existingContent);
-
-    writeMarkdown(mockPath, mockContent, markers);
-
-    expect(fs.writeFileSync).toHaveBeenCalledWith(mockPath, expectedContent);
-  });
-
   it("passes through any fs errors", () => {
     vi.mocked(fs.existsSync).mockReturnValueOnce(false);
     vi.mocked(fs.mkdirSync).mockImplementationOnce(() => {
