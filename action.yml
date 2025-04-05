@@ -1,42 +1,42 @@
-name: 'Top Contributors Action'
-description: 'Generates a list of top contributors'
-author: 'Ivan Shakhorski'
+name: "Top Contributors Action"
+description: "Generates a list of top contributors"
+author: "Ivan Shakhorski"
 
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: "node20"
+  main: "dist/index.js"
 
 inputs:
   token:
-    description: 'GitHub Token'
+    description: "GitHub Token"
     required: true
   organization:
-    description: 'Organization name to analyze (when specified, contributions will be counted across all public repositories)'
+    description: "Organization name to analyze (when specified, contributions will be counted across all public repositories)"
     required: false
   limit:
-    description: 'Limit the number of top contributors (optional), default does not limit the number of contributors'
+    description: "Limit the number of top contributors (optional), default does not limit the number of contributors"
     required: false
   output:
-    description: 'File path to write the karma leaderboard to (e.g., CONTRIBUTORS.md)'
+    description: "File path to write the karma leaderboard to (e.g., CONTRIBUTORS.md)"
     required: false
-    default: 'CONTRIBUTORS.md'
+    default: "CONTRIBUTORS.md"
   marker_start:
-    description: 'Start marker to identify where to insert content (e.g., <!-- TOP-CONTRIBUTORS-START -->) or leave empty to replace entire file'
+    description: "Start marker to identify where to insert content (e.g., <!-- TOP-CONTRIBUTORS-START -->) or leave empty to replace entire file"
     required: false
-    default: ''
+    default: ""
   marker_end:
-    description: 'End marker to identify where content insertion should end (e.g., <!-- TOP-CONTRIBUTORS-END -->)'
+    description: "End marker to identify where content insertion should end (e.g., <!-- TOP-CONTRIBUTORS-END -->)"
     required: false
-    default: ''
+    default: ""
   exclude:
     description: 'JSON array of patterns or emails to exclude from the contributions count (e.g., ["bot@example.com", "dependabot", "*-bot"])'
     required: false
-    default: '[]'
+    default: "[]"
   config:
     description: 'JSON object to configure the contribution types and their weights (e.g., {"pull_request": 10, "issue": 5, "review": 3, "commit": 2, "comment": 1}). If some types are not specified, they will be ignored. The default weights are: pull_request: 10, issue: 5, review: 3, commit: 2, comment: 1.'
     required: false
     default: '{"pull_request": 10, "issue": 5, "review": 3, "commit": 2, "comment": 1}'
 
 branding:
-  icon: 'award'
-  color: 'white'
+  icon: "award"
+  color: "white"

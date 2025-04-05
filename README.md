@@ -1,4 +1,4 @@
-﻿# Top Contributors Action
+# Top Contributors Action
 
 <img alt="GitHub Action" src="https://img.shields.io/badge/GitHub-Action-blue?logo=github"> <img alt="MIT License" src="https://img.shields.io/badge/license-MIT-green">
 
@@ -30,7 +30,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-            
+
             - name: Generate Top Contributors
                 uses: your-username/top-contributors-action@v2
                 with:
@@ -60,7 +60,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
-            
+
             - name: Generate Top Contributors
                 uses: your-username/top-contributors-action@v2
                 with:
@@ -71,7 +71,7 @@ jobs:
                     marker_start: '<!-- CONTRIBUTORS-START -->'
                     marker_end: '<!-- CONTRIBUTORS-END -->'
                     exclude: '["dependabot*", "*-bot", "bot@example.com"]'
-                    
+
             - name: Commit and push if changed
                 run: |
                     git config --local user.email "action@github.com"
@@ -110,7 +110,7 @@ You can customize the point values for different types of contributions by provi
 
 If no configuration is provided, the following default values are used:
 
-- Pull request: 10 points
+- Pull request: 10 points (only merged PR's)
 - Issue: 5 points
 - Review: 3 points
 - Commit: 2 points
