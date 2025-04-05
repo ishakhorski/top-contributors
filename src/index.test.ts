@@ -243,9 +243,9 @@ describe("run function", () => {
       switch (name) {
         case "token":
           return "mock-token";
-        case "marker-start":
+        case "marker_start":
           return "<!-- START -->";
-        case "marker-end":
+        case "marker_end":
           return "<!-- END -->";
         default:
           return "";

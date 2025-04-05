@@ -26,11 +26,12 @@ export class KarmaService {
     this.#state = new Map<string, number>();
     this.#config = config;
     this.#exclude = exclude.map((pattern) => {
-      const regexPattern = pattern
-        .replace(/\./g, "\\.")
+      const escaped = pattern
+        .replace(/[.+^${}()|[\]\\]/g, "\\$&")
         .replace(/\*/g, ".*")
         .replace(/\?/g, ".");
-      return new RegExp(`^${regexPattern}$`, "i");
+
+      return new RegExp(`^${escaped}$`, "i");
     });
   }
 

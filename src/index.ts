@@ -85,8 +85,8 @@ export async function run() {
     const output: string = getInput("output") || "CONTRIBUTORS.md";
     info(`Writing markdown to file: ${output}`);
 
-    const marker_start: string | null = getInput("marker-start") || null;
-    const marker_end: string | null = getInput("marker-end") || null;
+    const marker_start: string | null = getInput("marker_start") || null;
+    const marker_end: string | null = getInput("marker_end") || null;
 
     if (marker_start && marker_end) {
       info(

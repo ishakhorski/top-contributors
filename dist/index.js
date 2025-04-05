@@ -24033,8 +24033,8 @@ var KarmaService = class {
     this.#state = /* @__PURE__ */ new Map();
     this.#config = config;
     this.#exclude = exclude.map((pattern) => {
-      const regexPattern = pattern.replace(/\./g, "\\.").replace(/\*/g, ".*").replace(/\?/g, ".");
-      return new RegExp(`^${regexPattern}$`, "i");
+      const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".");
+      return new RegExp(`^${escaped}$`, "i");
     });
   }
   getLeaderboard() {
@@ -24098,7 +24098,6 @@ var KarmaService = class {
           { owner, repo, state: "all" },
           octokit
         );
-
         const pureIssues = issues.filter((issue) => !issue.pull_request);
         pureIssues.forEach((issue) => {
           if (issue.user && issue.user.login && !this.isExcluded(issue.user.login, issue.user.email || "")) {
@@ -24169,7 +24168,7 @@ var writeMarkdown = (output, markdown, markers) => {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
- if (!(markers == null ? void 0 : markers.marker_start) || !(markers == null ? void 0 : markers.marker_end)) {
+    if (!(markers == null ? void 0 : markers.marker_start) || !(markers == null ? void 0 : markers.marker_end)) {
       fs.writeFileSync(output, markdown);
       return;
     }
@@ -24252,8 +24251,8 @@ async function run() {
     const markdown = generateMarkdown(leaderboard);
     const output = (0, import_core.getInput)("output") || "CONTRIBUTORS.md";
     (0, import_core.info)(`Writing markdown to file: ${output}`);
-    const marker_start = (0, import_core.getInput)("marker-start") || null;
-    const marker_end = (0, import_core.getInput)("marker-end") || null;
+    const marker_start = (0, import_core.getInput)("marker_start") || null;
+    const marker_end = (0, import_core.getInput)("marker_end") || null;
     if (marker_start && marker_end) {
       (0, import_core.info)(
         `Using custom markers: ${marker_start} and ${marker_end}. This will overwrite the file content between these markers.`
