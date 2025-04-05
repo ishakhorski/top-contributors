@@ -1,26 +1,23 @@
 {
   "name": "top-contributors-action",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A GitHub Action to list top contributors of a repository",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build src/index.js -o dist",
-    "prepare": "npm run build"
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node16 --outfile=dist/index.js",
+    "test": "vitest"
   },
-  "keywords": [
-    "github",
-    "action",
-    "contributors",
-    "top",
-    "automation"
-  ],
+  "keywords": [],
   "author": "Ivan Shakhorski",
   "license": "MIT",
-  "dependencies": {
-    "@actions/core": "^1.10.0",
-    "@actions/github": "^5.1.1"
-  },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.0"
+    "@types/node": "^22.14.0",
+    "esbuild": "^0.25.2",
+    "typescript": "^5.8.2",
+    "vitest": "^3.1.1"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0"
   }
 }
