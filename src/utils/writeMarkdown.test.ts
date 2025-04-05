@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { writeMarkdown } from "./writeMarkdown";
+
 import * as fs from "fs";
 import * as path from "path";
+
+import { writeMarkdown } from "./writeMarkdown";
 
 describe("writeMarkdown", () => {
   vi.mock("fs");
@@ -13,7 +15,6 @@ describe("writeMarkdown", () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-
     vi.mocked(path.dirname).mockReturnValue(mockDir);
   });
 
@@ -47,20 +48,20 @@ describe("writeMarkdown", () => {
     const markdown = `# Test Markdown`;
 
     const existingContent = `
-                    # Existing Content
-                    ${markers.marker_start}
-                    old content
-                    ${markers.marker_end}
-                    ## More content
-                `;
+# Existing Content
+${markers.marker_start}
+old content
+${markers.marker_end}
+## More content
+`;
 
-    // The expected content should match how the function actually works
-    // The function properly replaces content between markers
     const expectedContent = `
-                    # Existing Content
-                    ${markers.marker_start}${markdown}${markers.marker_end}
-                    ## More content
-                `;
+# Existing Content
+${markers.marker_start}
+# Test Markdown
+${markers.marker_end}
+## More content
+`;
 
     vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(fs.readFileSync).mockReturnValueOnce(existingContent);
@@ -77,7 +78,7 @@ describe("writeMarkdown", () => {
     };
 
     const existingContent = `# Header\n${markers.marker_start}${markers.marker_end}\n# Footer`;
-    const expectedContent = `# Header\n${markers.marker_start}# Test Markdown${markers.marker_end}\n# Footer`;
+    const expectedContent = `# Header\n${markers.marker_start}\n# Test Markdown\n${markers.marker_end}\n# Footer`;
 
     vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(fs.readFileSync).mockReturnValueOnce(existingContent);
@@ -109,7 +110,7 @@ describe("writeMarkdown", () => {
       marker_end: "<!-- END_SECTION -->",
     };
 
-    const existingContent = `# Content with only start marker\n${markers.marker_start}\nsome content`;
+    const existingContent = `# Only start marker\n${markers.marker_start}\nSome content`;
 
     vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(fs.readFileSync).mockReturnValueOnce(existingContent);
@@ -126,18 +127,61 @@ describe("writeMarkdown", () => {
     };
 
     const existingContent = `
-            # Bad order
-            ${markers.marker_end}
-            some content
-            ${markers.marker_start}
-        `;
+# Bad order
+${markers.marker_end}
+Some content
+${markers.marker_start}
+`;
 
     vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(fs.readFileSync).mockReturnValueOnce(existingContent);
 
     expect(() => writeMarkdown(mockPath, mockContent, markers)).toThrow(
-      `Start marker appears after end marker in the file: ${mockPath}. Please check the markers.`,
+      `Start marker appears after end marker in the file: ${mockPath}. Please check the marker order.`,
     );
+  });
+
+  it("throws error when markers are provided but file does not exist", () => {
+    const markers = {
+      marker_start: "<!-- START_SECTION -->",
+      marker_end: "<!-- END_SECTION -->",
+    };
+
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    expect(() => writeMarkdown(mockPath, mockContent, markers)).toThrow(
+      `File does not exist: ${mockPath}`,
+    );
+  });
+
+  it("handles leading/trailing whitespace around markers", () => {
+    const markers = {
+      marker_start: "<!-- START_SECTION -->",
+      marker_end: "<!-- END_SECTION -->",
+    };
+
+    const existingContent = `
+Header
+    ${markers.marker_start}
+old content
+    ${markers.marker_end}
+Footer
+`;
+
+    const expectedContent = `
+Header
+    ${markers.marker_start}
+# Test Markdown
+    ${markers.marker_end}
+Footer
+`;
+
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readFileSync).mockReturnValueOnce(existingContent);
+
+    writeMarkdown(mockPath, mockContent, markers);
+
+    expect(fs.writeFileSync).toHaveBeenCalledWith(mockPath, expectedContent);
   });
 
   it("passes through any fs errors", () => {
