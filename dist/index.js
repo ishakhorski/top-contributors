@@ -24153,10 +24153,10 @@ var generateMarkdown = (leaderboard) => {
   const rows = leaderboard.map(
     ({ username, points }, index) => `| ${medals[index] || index + 1} | <a href="https://github.com/${username}">@${username}</a> | ${points} |`
   );
-  const footer = `_Last updated: ${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}_`;
+  const footer = `|:-------:|:--------:|:--------:|`;
   return `${header}
 ${rows.join("\n")}
-${footer}`;
+${footer}${`_Last updated: ${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}_`}`;
 };
 
 // src/utils/writeMarkdown.ts

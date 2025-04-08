@@ -4,7 +4,7 @@ import * as path from "path";
 export const writeMarkdown = (
   output: string,
   markdown: string,
-  markers?: { marker_start: string; marker_end: string },
+  markers?: { marker_start: string; marker_end: string }
 ) => {
   try {
     const dir = path.dirname(output);
@@ -12,13 +12,11 @@ export const writeMarkdown = (
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    // CASE 1: No markers provided → overwrite the whole file
     if (!markers?.marker_start || !markers?.marker_end) {
       fs.writeFileSync(output, markdown);
       return;
     }
 
-    // CASE 2 & 3: Markers provided → validate and replace between them
     if (!fs.existsSync(output)) {
       throw new Error(`File does not exist: ${output}`);
     }
@@ -30,13 +28,13 @@ export const writeMarkdown = (
 
     if (startIndex === -1 || endIndex === -1) {
       throw new Error(
-        `Markers not found in the file: ${output}. Please check the markers.`,
+        `Markers not found in the file: ${output}. Please check the markers.`
       );
     }
 
     if (startIndex > endIndex) {
       throw new Error(
-        `Start marker appears after end marker in the file: ${output}. Please check the marker order.`,
+        `Start marker appears after end marker in the file: ${output}. Please check the marker order.`
       );
     }
 
