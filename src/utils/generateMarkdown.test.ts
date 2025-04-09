@@ -24,7 +24,7 @@ describe("generateMarkdown", () => {
 
     expect(result).toContain("| 🏆 Rank | 👤 User | 🔥 Karma |");
     expect(result).toContain(
-      '| 🥇 | <a href="https://github.com/user1">@user1</a> | 100 |',
+      '| 🥇 | <a href="https://github.com/user1">@user1</a> | 100 |'
     );
     expect(result).toContain("_Last updated: 2023-07-15_");
   });
@@ -38,13 +38,13 @@ describe("generateMarkdown", () => {
     const result = generateMarkdown(leaderboard);
 
     expect(result).toContain(
-      '| 🥇 | <a href="https://github.com/user1">@user1</a> | 300 |',
+      '| 🥇 | <a href="https://github.com/user1">@user1</a> | 300 |'
     );
     expect(result).toContain(
-      '| 🥈 | <a href="https://github.com/user2">@user2</a> | 200 |',
+      '| 🥈 | <a href="https://github.com/user2">@user2</a> | 200 |'
     );
     expect(result).toContain(
-      '| 🥉 | <a href="https://github.com/user3">@user3</a> | 100 |',
+      '| 🥉 | <a href="https://github.com/user3">@user3</a> | 100 |'
     );
   });
 
@@ -59,10 +59,10 @@ describe("generateMarkdown", () => {
     const result = generateMarkdown(leaderboard);
 
     expect(result).toContain(
-      '| 4 | <a href="https://github.com/user4">@user4</a> | 200 |',
+      '| 4 | <a href="https://github.com/user4">@user4</a> | 200 |'
     );
     expect(result).toContain(
-      '| 5 | <a href="https://github.com/user5">@user5</a> | 100 |',
+      '| 5 | <a href="https://github.com/user5">@user5</a> | 100 |'
     );
   });
 
@@ -76,7 +76,7 @@ describe("generateMarkdown", () => {
       "| 🏆 Rank | 👤 User | 🔥 Karma |\n" +
       "|:-------:|:--------:|:--------:|\n" +
       '| 🥇 | <a href="https://github.com/user1">@user1</a> | 200 |\n' +
-      '| 🥈 | <a href="https://github.com/user2">@user2</a> | 100 |\n' +
+      '| 🥈 | <a href="https://github.com/user2">@user2</a> | 100 |\n\n' +
       "_Last updated: 2023-07-15_";
 
     expect(generateMarkdown(leaderboard)).toBe(expected);

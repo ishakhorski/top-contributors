@@ -15,9 +15,9 @@ export const generateMarkdown = (
         medals[index] || index + 1
       } | <a href="https://github.com/${username}">@${username}</a> | ${points} |`
   );
-  const footer: string = `|:-------:|:--------:|:--------:|`;
-
-  return `${header}\n${rows.join("\n")}\n${footer}${`_Last updated: ${
+  const footer: string = `_Last updated: ${
     new Date().toISOString().split("T")[0]
-  }_`}`;
+  }_`;
+
+  return `${header}\n${rows.join("\n")}\n\n${footer}`;
 };
